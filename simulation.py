@@ -642,7 +642,7 @@ HTML_TEMPLATE = """
             <div id="results-content"></div>
         </div>
 
-        <button class="research-btn" id="research-btn">View Research Paper</button>
+        <button class="research-btn" id="research-btn">Back to Homepage</button>
     </div>
 
     <div class="impact-animation" id="impact-animation">
@@ -650,7 +650,7 @@ HTML_TEMPLATE = """
         <div class="impact-flash" id="impact-flash"></div>
     </div>
 
-    <div id="research-modal" class="modal">
+    <!-- <div id="research-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn" id="close-modal">&times;</span>
             <h2 style="text-align: center; color: #fff; margin-bottom: 30px;">Research Paper</h2>
@@ -694,7 +694,7 @@ HTML_TEMPLATE = """
                 <p>Severe structural damage, ~50% casualties</p>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
@@ -940,18 +940,8 @@ HTML_TEMPLATE = """
         }
 
         document.getElementById('research-btn').addEventListener('click', function() {
-            document.getElementById('research-modal').classList.add('active');
-        });
-
-        document.getElementById('close-modal').addEventListener('click', function() {
-            document.getElementById('research-modal').classList.remove('active');
-        });
-
-        window.addEventListener('click', function(e) {
-            const modal = document.getElementById('research-modal');
-            if (e.target === modal) {
-                modal.classList.remove('active');
-            }
+            console.log(window.location.href.split("/")[2])
+            window.location.href = "/"
         });
 
         window.addEventListener('load', function() {
