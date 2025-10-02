@@ -1043,9 +1043,563 @@ HTML_TEMPLATE = """
 </html>
 """
 
+HTML_WELCOME = """
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Meteor Madness</title>
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Sterion&display=swap" rel="stylesheet">
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+
+		}
+
+		body {
+			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+			/* background: #0d0d0d; */
+			color: #e8e8e8;
+			min-height: 100vh;
+			background-image: url('https://i.postimg.cc/qvqThb8T/5bd334f8d938f-wallpaper-c8c6bd88f0c0cc28504cf1ae8872543a.jpg');
+			background-repeat: no-repeat;
+			background-size:110%;
+			background-position: center;
+		}
+
+		.container {
+			max-width: 1400px;
+			margin: 0 auto;
+			padding: 20px;
+		}
+
+		.start-container {
+			display: flex;
+			flex-direction: column;
+			column-gap: 5px;
+			justify-content: center;
+			align-items: center;
+			padding-top: 350px;
+			height: 100vh;
+		}
+
+		header {
+			text-align: center;
+			padding: 30px 20px;
+			background: #1a1a1a;
+			border-radius: 12px;
+			margin-bottom: 30px;
+			border: 1px solid #333;
+		}
+
+		h1 {
+			font-size: 3em;
+			color: #fff;
+			margin-bottom: 10px;
+			font-weight: 700;
+			letter-spacing: 2px;
+		}
+
+		.subtitle {
+			font-size: 1.1em;
+			color: #999;
+		}
+
+		.main-layout {
+			display: flex;
+			flex-direction: column;
+			gap: 25px;
+			margin-bottom: 30px;
+		}
+
+		.controls-row {
+			display: grid;
+			grid-template-columns: 1fr 1fr 1fr;
+			gap: 20px;
+			background: #1a1a1a;
+			border-radius: 12px;
+			padding: 25px;
+			border: 1px solid #333;
+		}
+
+		.control-group {
+			display: flex;
+			flex-direction: column;
+		}
+
+		.control-group label {
+			margin-bottom: 8px;
+			font-weight: 500;
+			color: #ccc;
+			font-size: 0.95em;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.tooltip {
+			position: relative;
+			display: inline-block;
+			cursor: help;
+		}
+
+		.tooltip-icon {
+			width: 18px;
+			height: 18px;
+			background: #444;
+			color: #fff;
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 12px;
+			font-weight: bold;
+		}
+
+		.tooltip:hover .tooltip-icon {
+			background: #666;
+		}
+
+		.tooltip-text {
+			visibility: hidden;
+			width: 280px;
+			background: #2a2a2a;
+			color: #e8e8e8;
+			text-align: center;
+			border-radius: 8px;
+			padding: 12px;
+			position: absolute;
+			z-index: 1000;
+			bottom: 125%;
+			left: 50%;
+			margin-left: -140px;
+			opacity: 0;
+			transition: opacity 0.3s;
+			font-size: 0.85em;
+			line-height: 1.4;
+			border: 1px solid #444;
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+		}
+
+		.tooltip-text::after {
+			content: "";
+			position: absolute;
+			top: 100%;
+			left: 50%;
+			margin-left: -5px;
+			border-width: 5px;
+			border-style: solid;
+			border-color: #2a2a2a transparent transparent transparent;
+		}
+
+		.tooltip:hover .tooltip-text {
+			visibility: visible;
+			opacity: 1;
+		}
+
+		select {
+			width: 100%;
+			padding: 12px;
+			border-radius: 8px;
+			border: 1px solid #444;
+			background: #0d0d0d;
+			color: #e8e8e8;
+			font-size: 1em;
+			cursor: pointer;
+		}
+
+		select:hover {
+			border-color: #666;
+		}
+
+		select:focus {
+			outline: none;
+			border-color: #888;
+		}
+
+		select option {
+			background: #1a1a1a;
+			color: #fff;
+		}
+
+		.info-box {
+			margin-top: 10px;
+			padding: 12px;
+			background: #0d0d0d;
+			border-radius: 8px;
+			border: 1px solid #333;
+			font-size: 0.9em;
+			display: none;
+		}
+
+		.info-box.active {
+			display: block;
+		}
+
+		.info-box strong {
+			color: #fff;
+		}
+
+		input[type="range"] {
+			width: 100%;
+			height: 8px;
+			border-radius: 5px;
+			background: linear-gradient(to right, #333, #666);
+			outline: none;
+			-webkit-appearance: none;
+		}
+
+		input[type="range"]::-webkit-slider-thumb {
+			-webkit-appearance: none;
+			width: 20px;
+			height: 20px;
+			border-radius: 50%;
+			background: #fff;
+			cursor: pointer;
+			box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+		}
+
+		input[type="range"]::-moz-range-thumb {
+			width: 20px;
+			height: 20px;
+			border-radius: 50%;
+			background: #fff;
+			cursor: pointer;
+			box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+			border: none;
+		}
+
+		.speed-display {
+			text-align: center;
+			margin: 10px 0;
+			font-size: 1.8em;
+			color: #fff;
+			font-weight: bold;
+		}
+
+		.simulate-section {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 10px;
+			margin-top: 10px;
+		}
+
+		.simulate-btn {
+			padding: 15px 40px;
+			background: #fff;
+			border: none;
+			border-radius: 10px;
+			color: #000;
+			font-size: 1.1em;
+			font-weight: bold;
+			cursor: pointer;
+			transition: all 0.3s;
+		}
+
+		.simulate-btn:hover {
+			background: #f0f0f0;
+			transform: translateY(-2px);
+		}
+
+		.simulate-btn:disabled {
+			background: #555;
+			color: #888;
+			cursor: not-allowed;
+		}
+
+		#map {
+			height: 650px;
+			border-radius: 12px;
+			border: 2px solid #333;
+			display: none;
+		}
+
+		#map.active {
+			display: block;
+		}
+
+		.map-placeholder {
+			height: 650px;
+			border-radius: 12px;
+			border: 2px dashed #444;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-direction: column;
+			background: #1a1a1a;
+		}
+
+		.map-placeholder.hidden {
+			display: none;
+		}
+
+		.placeholder-content {
+			text-align: center;
+			color: #666;
+		}
+
+		.placeholder-content h3 {
+			font-size: 2em;
+			margin-bottom: 15px;
+			color: #999;
+		}
+
+		.results-panel {
+			background: #1a1a1a;
+			border-radius: 12px;
+			padding: 25px;
+			border: 1px solid #333;
+			margin-top: 25px;
+			display: none;
+		}
+
+		.results-panel.active {
+			display: block;
+		}
+
+		.results-panel h3 {
+			margin-bottom: 20px;
+			color: #fff;
+			font-size: 1.8em;
+		}
+
+		.result-item {
+			margin-bottom: 15px;
+			padding: 15px;
+			background: #0d0d0d;
+			border-radius: 8px;
+			border-left: 4px solid #fff;
+		}
+
+		.result-item strong {
+			color: #fff;
+		}
+
+		.damage-zone {
+			margin: 10px 0;
+			padding: 15px;
+			border-radius: 8px;
+		}
+
+		.damage-zone.severe {
+			border-left: 4px solid #fff;
+			background: rgba(255, 255, 255, 0.05);
+		}
+
+		.damage-zone.moderate {
+			border-left: 4px solid #888;
+			background: rgba(136, 136, 136, 0.05);
+		}
+
+		.damage-zone h4 {
+			margin-bottom: 10px;
+			color: #fff;
+		}
+
+		.welcome-btn:hover {
+			background: #1d1d1d;
+		}
+
+		.welcome-btn {
+			width: 100%;
+			padding: 12px;
+			background: #2b2bfd;
+			border: 1px solid #444;
+			border-radius: 10px;
+			color: #e8e8e8;
+			font-size: 1em;
+			font-weight: bold;
+			cursor: pointer;
+			margin-top: 8px;
+			max-width: 200px;
+			display: block;
+			margin-left: auto;
+			margin-right: auto;
+			transition: all 0.3s;
+		}
+
+		.modal {
+			display: none;
+			position: fixed;
+			z-index: 1000;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			background: rgba(0, 0, 0, 0.9);
+			overflow-y: auto;
+		}
+
+		.modal.active {
+			display: block;
+		}
+
+		.modal-content {
+			background: #1a1a1a;
+			margin: 50px auto;
+			padding: 40px;
+			border-radius: 15px;
+			max-width: 800px;
+			border: 1px solid #333;
+		}
+
+		.close-btn {
+			float: right;
+			font-size: 2em;
+			font-weight: bold;
+			cursor: pointer;
+			color: #fff;
+		}
+
+		.close-btn:hover {
+			color: #ccc;
+		}
+
+		.research-section {
+			margin: 20px 0;
+		}
+
+		.research-section h3 {
+			color: #fff;
+			margin-bottom: 10px;
+			font-size: 1.5em;
+		}
+
+		.research-section h4 {
+			color: #ccc;
+			margin-top: 15px;
+			margin-bottom: 8px;
+		}
+
+		.research-section ul {
+			margin-left: 20px;
+			line-height: 1.8;
+		}
+
+		.research-section p {
+			line-height: 1.8;
+			margin-bottom: 10px;
+		}
+
+		.impact-animation {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			pointer-events: none;
+			z-index: 9999;
+			display: none;
+		}
+
+		.impact-animation.active {
+			display: block;
+		}
+
+		.meteor {
+			position: absolute;
+			width: 50px;
+			height: 50px;
+			background: radial-gradient(circle, #fff, #ccc);
+			border-radius: 50%;
+			box-shadow: 0 0 20px #fff;
+			opacity: 0;
+		}
+
+		.meteor.falling {
+			animation: meteorFall 1.5s ease-in forwards;
+		}
+
+		@keyframes meteorFall {
+			0% {
+				opacity: 0;
+				transform: translate(-200px, -200px) scale(0.5);
+			}
+
+			20% {
+				opacity: 1;
+			}
+
+			100% {
+				opacity: 1;
+				transform: translate(0, 0) scale(1);
+			}
+		}
+
+		.impact-flash {
+			position: absolute;
+			width: 150px;
+			height: 150px;
+			background: radial-gradient(circle, rgba(255, 255, 255, 1), transparent);
+			border-radius: 50%;
+			opacity: 0;
+		}
+
+		.impact-flash.active {
+			animation: flash 0.5s ease-out;
+		}
+
+		@keyframes flash {
+			0% {
+				opacity: 0;
+				transform: scale(0);
+			}
+
+			50% {
+				opacity: 1;
+				transform: scale(1);
+			}
+
+			100% {
+				opacity: 0;
+				transform: scale(2);
+			}
+		}
+
+		@media (max-width: 1024px) {
+			.controls-row {
+				grid-template-columns: 1fr;
+			}
+
+			h1 {
+				font-size: 2em;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<div class="start-container">
+		<button id="start-btn" onclick="startredirect()" class="welcome-btn">Start</button>
+		<button id="about-btn" onclick="aboutredirect()" class="welcome-btn">About</button>
+	</div>
+</body>
+<script>
+	startredirect = () => {
+		window.location.href = window.location.href + "simulation"
+	}
+	aboutredirect = () => {
+		window.location.href = window.location.href + "about"
+	}
+</script>
+</html>
+"""
+
+@app.route('/simulation')
+def simulate():
+    return render_template_string(HTML_TEMPLATE)
+
 @app.route('/')
 def index():
-    return render_template_string(HTML_TEMPLATE)
+    return render_template_string(HTML_WELCOME)
 
 @app.route('/api/asteroids')
 def get_asteroids():
