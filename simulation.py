@@ -1128,15 +1128,19 @@ HTML_WELCOME = """
 	<div class="start-container">
 		<button id="start-btn" onclick="startredirect()" class="welcome-btn">Start</button>
 		<button id="about-btn" onclick="aboutredirect()" class="welcome-btn">About</button>
+        <button id="about-btn" onclick="gameredirect()" class="welcome-btn">Game</button>
 	</div>
 </body>
 <script>
 	startredirect = () => {
-		window.location.href = window.location.href + "simulation"
+		window.location.href = "/simulation"
 	}
 	aboutredirect = () => {
-		window.location.href = window.location.href + "about"
+		window.location.href = "/about"
 	}
+    gameredirect = () => {
+        window.location.href = "/game"
+    }
 </script>
 </html>
 """
@@ -1272,6 +1276,381 @@ HTML_ABOUT = """
 </script>
 </html>
 """
+
+HTML_GAME = """
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Shooter - Defend Earth</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-image: url('https://i.postimg.cc/0jtG6XdT/wallpaperflare-com-wallpaper.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+        }
+
+        #gameContainer {
+            position: relative;
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        #gameCanvas {
+            display: block;
+            background-color: transparent;
+        }
+
+        #ui {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: rgb(40, 122, 184);
+            font-size: 20px;
+            font-weight: bold;
+            z-index: 10;
+        }
+
+        #gameOver {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #f00;
+            font-size: 48px;
+            font-weight: bold;
+            display: none;
+            z-index: 20;
+        }
+
+        #gameOver button {
+            margin-top: 20px;
+            padding: 15px 40px;
+            font-size: 24px;
+            background: rgb(24, 74, 112);
+            color: #000;
+            border: none;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        #gameOver button:hover {
+            background: rgb(40, 114, 171);
+        }
+		.start-btn {
+            width: 100%;
+            padding: 12px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 10px;
+            color: #e8e8e8;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 30px;
+            margin-bottom: 30px;
+            max-width: 400px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            transition: all 0.3s;
+        }
+
+        .start-btn:hover {
+            background: #333;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <div id="ui">
+            <div>Score: <span id="score">0</span></div>
+            <div>Health: <span id="health">100</span></div>
+        </div>
+        <div id="gameOver">
+            <div>GAME OVER</div>
+            <div style="font-size: 24px; margin-top: 10px;">Final Score: <span id="finalScore">0</span></div>
+            <button onclick="restartGame()">PLAY AGAIN</button>
+        </div>
+		<button id="home" onclick="home()" class="start-btn">Return to Homepage</button>
+    </div>
+    <script>
+		home = () => {
+			window.location.href = "/"
+		}
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.getElementById('gameContainer');
+
+        const playerImage = new Image();
+        playerImage.src = 'https://i.postimg.cc/MT3n2n7L/Chat-GPT-Image-3-2025-06-27-46.png';
+
+        // Game state
+        let gameActive = true;
+        let score = 0;
+        let health = 100;
+        let mouseX = canvas.width / 2;
+        let mouseY = canvas.height / 2;
+        let mouseDown = false;
+
+        // Player spaceship
+        const player = {
+            x: canvas.width / 2 - 20,
+            y: canvas.height - 80,
+            w: 60,
+            h: 75,
+            speed: 0.15,
+        };
+
+        // Game objects
+        let bullets = [];
+        let meteors = [];
+        let lastShot = 0;
+        let meteorSpawnRate = 1000;
+        let lastMeteorSpawn = 0;
+
+        // Input handling
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouseX = e.clientX - rect.left;
+            mouseY = e.clientY - rect.top;
+        });
+
+        canvas.addEventListener('mousedown', (e) => {
+            if (gameActive) {
+                mouseDown = true;
+            }
+        });
+
+        canvas.addEventListener('mouseup', (e) => {
+            mouseDown = false;
+        });
+
+        canvas.addEventListener('mouseleave', (e) => {
+            mouseDown = false;
+        });
+
+        // Shoot bullet
+        function shootBullet() {
+            const now = Date.now();
+            if (now - lastShot > 200) {
+                bullets.push({
+                    x: player.x + player.w / 2 - 2,
+                    y: player.y,
+                    w: 4,
+                    h: 15,
+                    speed: 8
+                });
+                lastShot = now;
+            }
+        }
+
+        // Spawn meteor
+        function spawnMeteor() {
+            const size = Math.random() * 30 + 20;
+            meteors.push({
+                x: Math.random() * (canvas.width - size),
+                y: -size,
+                w: size,
+                h: size,
+                speed: Math.random() * 2 + 1,
+                rotation: Math.random() * Math.PI * 2,
+                rotSpeed: (Math.random() - 0.5) * 0.1
+            });
+        }
+
+        // Draw spaceship
+        function drawPlayer() {
+            if (playerImage.complete) {
+                ctx.drawImage(playerImage, player.x, player.y, player.w, player.h);
+            } else {
+                ctx.fillStyle = player.color;
+                ctx.beginPath();
+                ctx.moveTo(player.x + player.w / 2, player.y);
+                ctx.lineTo(player.x, player.y + player.h);
+                ctx.lineTo(player.x + player.w / 2, player.y + player.h - 10);
+                ctx.lineTo(player.x + player.w, player.y + player.h);
+                ctx.closePath();
+                ctx.fill();
+            }
+        }
+
+        // Draw bullet
+        function drawBullet(b) {
+            ctx.fillStyle = '#ff0';
+            ctx.fillRect(b.x, b.y, b.w, b.h);
+        }
+
+        // Draw meteor
+        function drawMeteor(m) {
+            ctx.save();
+            ctx.translate(m.x + m.w / 2, m.y + m.h / 2);
+            ctx.rotate(m.rotation);
+
+            ctx.fillStyle = '#7a7a7a';
+            ctx.beginPath();
+            ctx.arc(0, 0, m.w / 2, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Draw craters
+            ctx.fillStyle = '#5a5a5a';
+            for (let i = 0; i < 3; i++) {
+                const angle = (i / 3) * Math.PI * 2;
+                const dist = m.w / 4;
+                ctx.beginPath();
+                ctx.arc(Math.cos(angle) * dist, Math.sin(angle) * dist, m.w / 8, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            ctx.restore();
+        }
+
+        // Update game
+        function update() {
+            if (!gameActive) return;
+
+            // Move player towards mouse
+            const dx = mouseX - (player.x + player.w / 2);
+            const dy = mouseY - (player.y + player.h / 2);
+            player.x += dx * player.speed;
+            player.y += dy * player.speed;
+
+            // Keep player in bounds
+            player.x = Math.max(0, Math.min(canvas.width - player.w, player.x));
+            player.y = Math.max(Math.min(canvas.height - player.h, player.y), Math.min(canvas.height / 2 - player.h));
+
+            // Auto-fire when mouse is held down
+            if (mouseDown) {
+                shootBullet();
+            }
+
+            // Update bullets
+            bullets = bullets.filter(b => {
+                b.y -= b.speed;
+                return b.y > -b.h;
+            });
+
+            // Update meteors
+            const now = Date.now();
+            if (now - lastMeteorSpawn > meteorSpawnRate) {
+                spawnMeteor();
+                lastMeteorSpawn = now;
+                meteorSpawnRate = Math.max(500, meteorSpawnRate - 5);
+            }
+
+            meteors = meteors.filter(m => {
+                m.y += m.speed;
+                m.rotation += m.rotSpeed;
+
+                // Check collision with player
+                const playerCenterX = player.x + player.w / 2;
+                const playerCenterY = player.y + player.h / 2;
+                const meteorCenterX = m.x + m.w / 2;
+                const meteorCenterY = m.y + m.h / 2;
+                const distToPlayer = Math.sqrt(
+                    Math.pow(playerCenterX - meteorCenterX, 2) +
+                    Math.pow(playerCenterY - meteorCenterY, 2)
+                );
+
+                if (distToPlayer < m.w / 2 + player.w / 2) {
+                    health -= 20;
+                    document.getElementById('health').textContent = health;
+                    if (health <= 0) {
+                        gameOver();
+                    }
+                    return false;
+                }
+
+                // Check if meteor goes off screen
+                if (m.y > canvas.height + m.h) {
+                    health -= 10;
+                    document.getElementById('health').textContent = health;
+                    if (health <= 0) {
+                        gameOver();
+                    }
+                    return false;
+                }
+
+                // Check collision with bullets
+                for (let i = bullets.length - 1; i >= 0; i--) {
+                    const b = bullets[i];
+                    const dx = (m.x + m.w / 2) - (b.x + b.w / 2);
+                    const dy = (m.y + m.h / 2) - (b.y + b.h / 2);
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < m.w / 2 + b.h / 2) {
+                        bullets.splice(i, 1);
+                        score += 10;
+                        document.getElementById('score').textContent = score;
+                        return false;
+                    }
+                }
+
+                return true;
+            });
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawPlayer();
+            bullets.forEach(drawBullet);
+            meteors.forEach(drawMeteor);
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function gameOver() {
+            gameActive = false;
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('gameOver').style.display = 'block';
+        }
+
+        function restartGame() {
+            gameActive = true;
+            score = 0;
+            health = 100;
+            bullets = [];
+            meteors = [];
+            meteorSpawnRate = 1000;
+            player.x = canvas.width / 2 - 20;
+            player.y = canvas.height - 80;
+            document.getElementById('score').textContent = score;
+            document.getElementById('health').textContent = health;
+            document.getElementById('gameOver').style.display = 'none';
+        }
+
+        gameLoop();
+    </script>
+</body>
+
+</html>
+"""
+
+@app.route('/game')
+def game():
+    return render_template_string(HTML_GAME)
 
 @app.route('/simulation')
 def simulate():
