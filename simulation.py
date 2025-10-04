@@ -574,7 +574,7 @@ HTML_TEMPLATE = """
             <h1>SIMULATION</h1>
             <!-- <p class="subtitle">Asteroid Impact Simulator</p> -->
         </header>
-
+        <audio id="explosion"><source src="https://audio.jukehost.co.uk/BkJrT8bymF3AbLFOfvIpxpP711oO67Cl"></audio>
         <div class="main-layout">
             <div class="controls-row">
                 <div class="control-group">
@@ -735,13 +735,24 @@ HTML_TEMPLATE = """
         }
 
         function addLocationMarkers(locations) {
-            Object.entries(locations).forEach(([name, coords]) => {
-                const marker = L.marker([coords.lat, coords.lon])
-                    .addTo(map)
-                    .bindPopup('<b>' + name + '</b>');
-                markers[name] = marker;
+            // Custom marker - CHANGE THE EMOJI HERE!
+            const cityIcon = L.divIcon({
+                className: 'custom-marker',
+                html: '💥',
+                iconSize: [30, 30],
+                iconAnchor: [15, 30]
             });
-        }
+
+            for (const cityName in locations) {
+                if (locations.hasOwnProperty(cityName)) {
+                    const cityData = locations[cityName];
+                    const marker = L.marker([cityData.lat, cityData.lon], { icon: cityIcon })
+                        .addTo(map)
+                        .bindPopup('<b>' + cityName + '</b>');
+                    markers[cityName] = marker;
+                }
+            };
+            }
 
         document.getElementById('velocity-slider').addEventListener('input', function(e) {
             document.getElementById('velocity-value').textContent = e.target.value;
@@ -824,19 +835,19 @@ HTML_TEMPLATE = """
             })
             .then(response => response.json())
             .then(result => {
-                // SCROLL FIRST - ADJUST THIS LINE (200 = milliseconds delay)
                 setTimeout(function() {
                     document.getElementById('map').scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }, 200);
                 
-                // THEN PLAY ANIMATION (after scroll is done)
                 setTimeout(function() {
                     playImpactAnimation(result.coordinates);
                 }, 1000);
-                
+
                 setTimeout(function() {
                     displayResults(result);
                     drawDamageZones(result);
+                    const explosion = document.getElementById('explosion');
+                    explosion.play();
                 }, 2600);
 
                 btn.textContent = 'SIMULATE IMPACT';
@@ -937,7 +948,7 @@ HTML_TEMPLATE = """
                     radius: result.damage_zones.severe.radius_km * 1000
                 }).addTo(map).bindPopup('20 PSI Zone<br>' + result.damage_zones.severe.radius_km + ' km');
 
-                L.marker(coords).addTo(map).bindPopup('<strong>GROUND ZERO</strong>');
+                
             }, 500);
         }
 
@@ -1078,7 +1089,7 @@ HTML_WELCOME = """
 			column-gap: 5px;
 			justify-content: center;
 			align-items: center;
-			padding-top: 350px;
+			padding-top: 150px;
 			height: 100vh;
 		}
 
@@ -1121,14 +1132,24 @@ HTML_WELCOME = """
 			margin-right: auto;
 			transition: all 0.3s;
 		}
+
+        .name {
+            font-size: 80px;
+            margin: 0;
+            padding: 0;
+            margin-bottom: 250px;
+            letter-spacing: 15px;
+            color: #999999
+        }
 	</style>
 </head>
 
 <body>
 	<div class="start-container">
-		<button id="start-btn" onclick="startredirect()" class="welcome-btn">Start</button>
-		<button id="about-btn" onclick="aboutredirect()" class="welcome-btn">About</button>
+        <h1 class="name">EGYPTEROIDS</h1>
+		<button id="start-btn" onclick="startredirect()" class="welcome-btn">Simulate</button>
         <button id="about-btn" onclick="gameredirect()" class="welcome-btn">Game</button>
+        <button id="about-btn" onclick="aboutredirect()" class="welcome-btn">About</button>
 	</div>
 </body>
 <script>
@@ -1231,7 +1252,7 @@ HTML_ABOUT = """
 <body>
     <div class="container">
         <h1 class="about-header">Our team</h1>
-        <p class="about-text">We are a team of A Level Egyptian students. We came together to create this project for Nasa Space Apps 2025!</p>
+        <p class="about-text">We are a team of Egyptian A Level students. We came together to create this project for Nasa Space Apps 2025!</p>
         <h1 class="about-header">Team Members</h1>
         <ul>
             <li class="about-text">●  Seif Tamer</li>
@@ -1375,12 +1396,22 @@ HTML_GAME = """
         .start-btn:hover {
             background: #333;
         }
+
+        .text {
+            z-index: 999;
+            color: white;
+        }
     </style>
 </head>
 
 <body>
     <div id="gameContainer">
+        <audio id="shoot"><source src="https://audio.jukehost.co.uk/0udu8JtiOvJh8S6tBUcb5VzIYpxugUkW"></audio>
+        <audio id="dead"><source src="https://audio.jukehost.co.uk/aJfL2L1SBEbRClq11OFOhuXEIewttjCb"></audio>
+        <audio id="explosion"><source src="https://audio.jukehost.co.uk/lcjH1tRLuvQUBjTT7Vel4tywgQGx1zuw"></audio>
         <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <h3 class="text">Try to defend the Earth from the different Asteroids (the ones in the simulation page!)</h3>
+        <h5 class="text">Please shoot one bullet at a time*</h5>
         <div id="ui">
             <div>Score: <span id="score">0</span></div>
             <div>Health: <span id="health">100</span></div>
@@ -1438,6 +1469,8 @@ HTML_GAME = """
             if (gameActive) {
                 mouseDown = true;
             }
+            shoot = document.getElementById('shoot');
+            shoot.play()
         });
 
         canvas.addEventListener('mouseup', (e) => {
@@ -1573,6 +1606,8 @@ HTML_GAME = """
                 if (distToPlayer < m.w / 2 + player.w / 2) {
                     health -= 20;
                     document.getElementById('health').textContent = health;
+                    const explosion = document.getElementById('explosion');
+                    explosion.play();
                     if (health <= 0) {
                         gameOver();
                     }
@@ -1625,6 +1660,8 @@ HTML_GAME = """
             gameActive = false;
             document.getElementById('finalScore').textContent = score;
             document.getElementById('gameOver').style.display = 'block';
+            const dead = document.getElementById('dead');
+            dead.play()
         }
 
         function restartGame() {
@@ -1739,11 +1776,6 @@ def simulate_impact():
     return jsonify(result)
 
 if __name__ == '__main__':
-    print("\n" + "="*60)
-    print("METEOR MADNESS - NASA Space Apps Challenge 2025")
-    print("="*60)
     print("\nServer starting...")
     print("Open your browser: http://127.0.0.1:5000")
-    print("\nReady to simulate!")
-    print("="*60 + "\n")
     app.run(debug=True, host='127.0.0.1', port=5000)
