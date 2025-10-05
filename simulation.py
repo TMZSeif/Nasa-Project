@@ -5,7 +5,7 @@ import math
 app = Flask(__name__)
 CORS(app)
 
-# Real asteroid data from NASA
+
 ASTEROIDS = {
     "Sisyphus": {"diameter_km": 8.48, "spectral_type": "S", "density": 2500},
     "Sekhmet": {"diameter_km": 0.935, "spectral_type": "Unknown", "density": 2500},
@@ -735,7 +735,6 @@ HTML_TEMPLATE = """
         }
 
         function addLocationMarkers(locations) {
-            // Custom marker - CHANGE THE EMOJI HERE!
             const cityIcon = L.divIcon({
                 className: 'custom-marker',
                 html: '💥',
@@ -758,7 +757,7 @@ HTML_TEMPLATE = """
             document.getElementById('velocity-value').textContent = e.target.value;
         });
 
-        // Asteroid info
+        
         document.getElementById('asteroid-select').addEventListener('change', function(e) {
             const asteroidName = e.target.value;
             const infoBox = document.getElementById('asteroid-info');
@@ -782,7 +781,7 @@ HTML_TEMPLATE = """
             .catch(error => console.error('Error:', error));
         });
 
-        // City info
+        
         document.getElementById('location-select').addEventListener('change', function(e) {
             const cityName = e.target.value;
             const cityInfoBox = document.getElementById('city-info');
@@ -869,7 +868,7 @@ HTML_TEMPLATE = """
             const mapEl = document.getElementById('map');
             const rect = mapEl.getBoundingClientRect();
             
-            // Position relative to viewport (fixed position)
+            
             const targetX = rect.left + rect.width / 2;
             const targetY = rect.top + rect.height / 2;
 
@@ -961,7 +960,7 @@ HTML_TEMPLATE = """
             console.log('Page loaded!');
             console.log('API_URL is:', API_URL);
             
-            // Test if elements exist
+            
             var asteroidSelect = document.getElementById('asteroid-select');
             var locationSelect = document.getElementById('location-select');
             
@@ -973,7 +972,7 @@ HTML_TEMPLATE = """
                 return;
             }
             
-            // Try loading data
+            
             setTimeout(function() {
                 loadAsteroidsAndLocations();
             }, 500);
@@ -983,7 +982,7 @@ HTML_TEMPLATE = """
             console.log('Starting to load data...');
             console.log('API URL:', API_URL);
             
-            // Load asteroids
+           
             fetch(API_URL + '/api/asteroids')
             .then(function(response) { 
                 console.log('Asteroids response:', response);
@@ -1012,7 +1011,7 @@ HTML_TEMPLATE = """
                 alert('Error loading asteroids: ' + error.message);
             });
 
-            // Load locations
+            
             fetch(API_URL + '/api/locations')
             .then(function(response) { 
                 console.log('Locations response:', response);
@@ -1434,7 +1433,7 @@ HTML_GAME = """
         const playerImage = new Image();
         playerImage.src = 'https://i.postimg.cc/7h0gt59L/battle-ship-pixels-vintage-technology-isolated-icon-vector-removebg-preview.png';
 
-        // Game state
+        
         let gameActive = true;
         let score = 0;
         let health = 100;
@@ -1442,7 +1441,7 @@ HTML_GAME = """
         let mouseY = canvas.height / 2;
         let mouseDown = false;
 
-        // Player spaceship
+        
         const player = {
             x: canvas.width / 2 - 20,
             y: canvas.height - 80,
@@ -1451,14 +1450,14 @@ HTML_GAME = """
             speed: 0.15,
         };
 
-        // Game objects
+        
         let bullets = [];
         let meteors = [];
         let lastShot = 0;
         let meteorSpawnRate = 1000;
         let lastMeteorSpawn = 0;
 
-        // Input handling
+        
         canvas.addEventListener('mousemove', (e) => {
             const rect = canvas.getBoundingClientRect();
             mouseX = e.clientX - rect.left;
@@ -1481,7 +1480,7 @@ HTML_GAME = """
             mouseDown = false;
         });
 
-        // Shoot bullet
+        
         function shootBullet() {
             const now = Date.now();
             if (now - lastShot > 200) {
@@ -1496,7 +1495,7 @@ HTML_GAME = """
             }
         }
 
-        // Spawn meteor
+        r
         function spawnMeteor() {
             const size = Math.random() * 30 + 20;
             meteors.push({
@@ -1510,7 +1509,7 @@ HTML_GAME = """
             });
         }
 
-        // Draw spaceship
+        
         function drawPlayer() {
             if (playerImage.complete) {
                 ctx.drawImage(playerImage, player.x, player.y, player.w, player.h);
@@ -1526,13 +1525,13 @@ HTML_GAME = """
             }
         }
 
-        // Draw bullet
+        
         function drawBullet(b) {
             ctx.fillStyle = '#ff0';
             ctx.fillRect(b.x, b.y, b.w, b.h);
         }
 
-        // Draw meteor
+        
         function drawMeteor(m) {
             ctx.save();
             ctx.translate(m.x + m.w / 2, m.y + m.h / 2);
@@ -1543,7 +1542,7 @@ HTML_GAME = """
             ctx.arc(0, 0, m.w / 2, 0, Math.PI * 2);
             ctx.fill();
 
-            // Draw craters
+            
             ctx.fillStyle = '#5a5a5a';
             for (let i = 0; i < 3; i++) {
                 const angle = (i / 3) * Math.PI * 2;
@@ -1556,32 +1555,32 @@ HTML_GAME = """
             ctx.restore();
         }
 
-        // Update game
+        
         function update() {
             if (!gameActive) return;
 
-            // Move player towards mouse
+            
             const dx = mouseX - (player.x + player.w / 2);
             const dy = mouseY - (player.y + player.h / 2);
             player.x += dx * player.speed;
             player.y += dy * player.speed;
 
-            // Keep player in bounds
+            
             player.x = Math.max(0, Math.min(canvas.width - player.w, player.x));
             player.y = Math.max(Math.min(canvas.height - player.h, player.y), Math.min(canvas.height / 2 - player.h));
 
-            // Auto-fire when mouse is held down
+           
             if (mouseDown) {
                 shootBullet();
             }
 
-            // Update bullets
+            
             bullets = bullets.filter(b => {
                 b.y -= b.speed;
                 return b.y > -b.h;
             });
 
-            // Update meteors
+            
             const now = Date.now();
             if (now - lastMeteorSpawn > meteorSpawnRate) {
                 spawnMeteor();
@@ -1593,7 +1592,7 @@ HTML_GAME = """
                 m.y += m.speed;
                 m.rotation += m.rotSpeed;
 
-                // Check collision with player
+                
                 const playerCenterX = player.x + player.w / 2;
                 const playerCenterY = player.y + player.h / 2;
                 const meteorCenterX = m.x + m.w / 2;
@@ -1614,7 +1613,7 @@ HTML_GAME = """
                     return false;
                 }
 
-                // Check if meteor goes off screen
+                
                 if (m.y > canvas.height + m.h) {
                     health -= 10;
                     document.getElementById('health').textContent = health;
@@ -1624,7 +1623,7 @@ HTML_GAME = """
                     return false;
                 }
 
-                // Check collision with bullets
+                
                 for (let i = bullets.length - 1; i >= 0; i--) {
                     const b = bullets[i];
                     const dx = (m.x + m.w / 2) - (b.x + b.w / 2);
