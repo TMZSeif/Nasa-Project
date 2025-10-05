@@ -652,52 +652,6 @@ HTML_TEMPLATE = """
         <div class="impact-flash" id="impact-flash"></div>
     </div>
 
-    <!-- <div id="research-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" id="close-modal">&times;</span>
-            <h2 style="text-align: center; color: #fff; margin-bottom: 30px;">Research Paper</h2>
-            
-            <div class="research-section">
-                <h3>1. Assumptions</h3>
-                <ul>
-                    <li><strong>Vertical Impact:</strong> 90° impact angle</li>
-                    <li><strong>Sea Level Impact:</strong> Standard elevation</li>
-                    <li><strong>Asteroid Density:</strong> Based on spectral type</li>
-                    <li><strong>No Fragmentation:</strong> Asteroid remains intact</li>
-                    <li><strong>Spherical Shape:</strong> Uniform geometry</li>
-                </ul>
-            </div>
-
-            <div class="research-section">
-                <h3>2. Ignored Factors</h3>
-                <ul>
-                    <li>Impact angle variations</li>
-                    <li>Atmospheric entry effects</li>
-                    <li>Terrain elevation</li>
-                    <li>Secondary effects (tsunamis, fires)</li>
-                    <li>Long-term climate impacts</li>
-                </ul>
-            </div>
-
-            <div class="research-section">
-                <h3>3. Physics & Math</h3>
-                <h4>Kinetic Energy:</h4>
-                <p>E = ½mv²</p>
-                <h4>Blast Scaling:</h4>
-                <p>R = C × Y^(1/3)</p>
-                <p>Where C = 0.28 for 20 PSI, C = 1.04 for 3 PSI</p>
-            </div>
-
-            <div class="research-section">
-                <h3>4. Damage Zones</h3>
-                <h4>20 PSI (Severe):</h4>
-                <p>Complete building destruction, near 100% casualties</p>
-                <h4>3 PSI (Moderate):</h4>
-                <p>Severe structural damage, ~50% casualties</p>
-            </div>
-        </div>
-    </div> -->
-
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         const API_URL = window.location.origin;
@@ -735,7 +689,6 @@ HTML_TEMPLATE = """
         }
 
         function addLocationMarkers(locations) {
-            // Custom marker - CHANGE THE EMOJI HERE!
             const cityIcon = L.divIcon({
                 className: 'custom-marker',
                 html: '💥',
@@ -869,7 +822,6 @@ HTML_TEMPLATE = """
             const mapEl = document.getElementById('map');
             const rect = mapEl.getBoundingClientRect();
             
-            // Position relative to viewport (fixed position)
             const targetX = rect.left + rect.width / 2;
             const targetY = rect.top + rect.height / 2;
 
@@ -961,7 +913,6 @@ HTML_TEMPLATE = """
             console.log('Page loaded!');
             console.log('API_URL is:', API_URL);
             
-            // Test if elements exist
             var asteroidSelect = document.getElementById('asteroid-select');
             var locationSelect = document.getElementById('location-select');
             
@@ -973,7 +924,6 @@ HTML_TEMPLATE = """
                 return;
             }
             
-            // Try loading data
             setTimeout(function() {
                 loadAsteroidsAndLocations();
             }, 500);
@@ -1434,7 +1384,6 @@ HTML_GAME = """
         const playerImage = new Image();
         playerImage.src = 'https://i.postimg.cc/7h0gt59L/battle-ship-pixels-vintage-technology-isolated-icon-vector-removebg-preview.png';
 
-        // Game state
         let gameActive = true;
         let score = 0;
         let health = 100;
@@ -1442,7 +1391,6 @@ HTML_GAME = """
         let mouseY = canvas.height / 2;
         let mouseDown = false;
 
-        // Player spaceship
         const player = {
             x: canvas.width / 2 - 20,
             y: canvas.height - 80,
@@ -1451,14 +1399,12 @@ HTML_GAME = """
             speed: 0.15,
         };
 
-        // Game objects
         let bullets = [];
         let meteors = [];
         let lastShot = 0;
         let meteorSpawnRate = 1000;
         let lastMeteorSpawn = 0;
 
-        // Input handling
         canvas.addEventListener('mousemove', (e) => {
             const rect = canvas.getBoundingClientRect();
             mouseX = e.clientX - rect.left;
@@ -1481,7 +1427,6 @@ HTML_GAME = """
             mouseDown = false;
         });
 
-        // Shoot bullet
         function shootBullet() {
             const now = Date.now();
             if (now - lastShot > 200) {
@@ -1496,7 +1441,6 @@ HTML_GAME = """
             }
         }
 
-        // Spawn meteor
         function spawnMeteor() {
             const size = Math.random() * 30 + 20;
             meteors.push({
@@ -1510,7 +1454,6 @@ HTML_GAME = """
             });
         }
 
-        // Draw spaceship
         function drawPlayer() {
             if (playerImage.complete) {
                 ctx.drawImage(playerImage, player.x, player.y, player.w, player.h);
@@ -1526,13 +1469,11 @@ HTML_GAME = """
             }
         }
 
-        // Draw bullet
         function drawBullet(b) {
             ctx.fillStyle = '#ff0';
             ctx.fillRect(b.x, b.y, b.w, b.h);
         }
 
-        // Draw meteor
         function drawMeteor(m) {
             ctx.save();
             ctx.translate(m.x + m.w / 2, m.y + m.h / 2);
@@ -1543,7 +1484,6 @@ HTML_GAME = """
             ctx.arc(0, 0, m.w / 2, 0, Math.PI * 2);
             ctx.fill();
 
-            // Draw craters
             ctx.fillStyle = '#5a5a5a';
             for (let i = 0; i < 3; i++) {
                 const angle = (i / 3) * Math.PI * 2;
@@ -1556,32 +1496,26 @@ HTML_GAME = """
             ctx.restore();
         }
 
-        // Update game
         function update() {
             if (!gameActive) return;
 
-            // Move player towards mouse
             const dx = mouseX - (player.x + player.w / 2);
             const dy = mouseY - (player.y + player.h / 2);
             player.x += dx * player.speed;
             player.y += dy * player.speed;
 
-            // Keep player in bounds
             player.x = Math.max(0, Math.min(canvas.width - player.w, player.x));
             player.y = Math.max(Math.min(canvas.height - player.h, player.y), Math.min(canvas.height / 2 - player.h));
 
-            // Auto-fire when mouse is held down
             if (mouseDown) {
                 shootBullet();
             }
 
-            // Update bullets
             bullets = bullets.filter(b => {
                 b.y -= b.speed;
                 return b.y > -b.h;
             });
 
-            // Update meteors
             const now = Date.now();
             if (now - lastMeteorSpawn > meteorSpawnRate) {
                 spawnMeteor();
@@ -1593,7 +1527,6 @@ HTML_GAME = """
                 m.y += m.speed;
                 m.rotation += m.rotSpeed;
 
-                // Check collision with player
                 const playerCenterX = player.x + player.w / 2;
                 const playerCenterY = player.y + player.h / 2;
                 const meteorCenterX = m.x + m.w / 2;
@@ -1614,7 +1547,6 @@ HTML_GAME = """
                     return false;
                 }
 
-                // Check if meteor goes off screen
                 if (m.y > canvas.height + m.h) {
                     health -= 10;
                     document.getElementById('health').textContent = health;
@@ -1624,7 +1556,6 @@ HTML_GAME = """
                     return false;
                 }
 
-                // Check collision with bullets
                 for (let i = bullets.length - 1; i >= 0; i--) {
                     const b = bullets[i];
                     const dx = (m.x + m.w / 2) - (b.x + b.w / 2);
@@ -1703,15 +1634,11 @@ def index():
 
 @app.route('/api/asteroids')
 def get_asteroids():
-    print("Asteroids API called")  # Debug
     asteroids = list(ASTEROIDS.keys())
-    print("Returning asteroids:", asteroids)  # Debug
     return jsonify(asteroids)
 
 @app.route('/api/locations')
 def get_locations():
-    print("Locations API called")  # Debug
-    print("Returning locations:", list(LOCATIONS.keys()))  # Debug
     return jsonify(LOCATIONS)
 
 @app.route('/api/simulate', methods=['POST'])
