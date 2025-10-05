@@ -1432,7 +1432,7 @@ HTML_GAME = """
         const container = document.getElementById('gameContainer');
 
         const playerImage = new Image();
-        playerImage.src = 'https://i.postimg.cc/MT3n2n7L/Chat-GPT-Image-3-2025-06-27-46.png';
+        playerImage.src = 'https://i.postimg.cc/FsNWtGQF/battle-ship-pixels-vintage-technology-isolated-icon-vector.jpg';
 
         // Game state
         let gameActive = true;
