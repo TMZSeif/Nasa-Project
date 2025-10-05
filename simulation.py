@@ -5,7 +5,6 @@ import math
 app = Flask(__name__)
 CORS(app)
 
-# Real asteroid data from NASA
 ASTEROIDS = {
     "Sisyphus": {"diameter_km": 8.48, "spectral_type": "S", "density": 2500},
     "Sekhmet": {"diameter_km": 0.935, "spectral_type": "Unknown", "density": 2500},
@@ -74,7 +73,7 @@ HTML_TEMPLATE = """
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-image: url('https://i.postimg.cc/JzhSpp47/starry-night-wallpaper-98d7331900085cd1637177b600354afb.jpg');
+            background-image: url('https://i.postimg.cc/RCgsp5by/kai-pilger-Ef6i-L87-v-OA-unsplash.jpg');
             background-repeat: no-repeat;
             background-size: 200%;
             color: #e8e8e8;
@@ -1021,7 +1020,7 @@ HTML_WELCOME = """
 			/* background: #0d0d0d; */
 			color: #e8e8e8;
 			min-height: 100vh;
-			background-image: url('https://i.postimg.cc/qvqThb8T/5bd334f8d938f-wallpaper-c8c6bd88f0c0cc28504cf1ae8872543a.jpg');
+			background-image: url('https://i.postimg.cc/nVmKB8fs/vimal-s-GBg3jy-GS-Ug-unsplash.jpg ');
 			background-repeat: no-repeat;
 			background-size:110%;
 			background-position: center;
@@ -1067,7 +1066,7 @@ HTML_WELCOME = """
 
 		.welcome-btn {
 			width: 100%;
-			padding: 12px;
+			padding: 15px;
 			background: #2b2bfd;
 			border: 1px solid #444;
 			border-radius: 10px;
@@ -1075,7 +1074,7 @@ HTML_WELCOME = """
 			font-size: 1em;
 			font-weight: bold;
 			cursor: pointer;
-			margin-top: 8px;
+			margin-top: 5px;
 			max-width: 200px;
 			display: block;
 			margin-left: auto;
@@ -1087,7 +1086,7 @@ HTML_WELCOME = """
             font-size: 80px;
             margin: 0;
             padding: 0;
-            margin-bottom: 250px;
+            margin-bottom: 280px;
             letter-spacing: 15px;
             color: #999999
         }
@@ -1133,7 +1132,7 @@ HTML_ABOUT = """
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-image: url('https://i.postimg.cc/JzhSpp47/starry-night-wallpaper-98d7331900085cd1637177b600354afb.jpg');
+            background-image: url('https://i.postimg.cc/RCgsp5by/kai-pilger-Ef6i-L87-v-OA-unsplash.jpg');
             background-repeat: no-repeat;
             background-size: 150%;
             color: #e8e8e8;
@@ -1264,7 +1263,7 @@ HTML_GAME = """
         }
 
         body {
-            background-image: url('https://i.postimg.cc/0jtG6XdT/wallpaperflare-com-wallpaper.jpg');
+            background-image: url('https://i.postimg.cc/RCgsp5by/kai-pilger-Ef6i-L87-v-OA-unsplash.jpg');
             background-size: cover;
             background-repeat: no-repeat;
             background-position: center center;
