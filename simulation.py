@@ -1381,7 +1381,7 @@ HTML_GAME = """
         const container = document.getElementById('gameContainer');
 
         const playerImage = new Image();
-        playerImage.src = 'https://i.postimg.cc/7h0gt59L/battle-ship-pixels-vintage-technology-isolated-icon-vector-removebg-preview.png';
+        playerImage.src = 'https://i.postimg.cc/4ytRb9Kf/5958dcd313d478f-removebg-preview.png';
 
         let gameActive = true;
         let score = 0;
